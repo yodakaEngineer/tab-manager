@@ -179,8 +179,8 @@ function createGroupCard(group, searchQuery) {
 
     const favicon = document.createElement('img');
     favicon.className = 'tab-favicon';
-    favicon.width = 14;
-    favicon.height = 14;
+    favicon.width = 16;
+    favicon.height = 16;
     if (tab.favIconUrl) {
       favicon.src = tab.favIconUrl;
       favicon.onerror = () => {
@@ -196,6 +196,12 @@ function createGroupCard(group, searchQuery) {
     if (searchQuery && matchingUrls && matchingUrls.has(tab.url)) {
       title.classList.add('highlight');
     }
+
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', () => {
+      chrome.tabs.create({ url: tab.url, active: false });
+      showToast(msg('tabOpened'));
+    });
 
     item.append(favicon, title);
     tabList.appendChild(item);
