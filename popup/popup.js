@@ -20,12 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('searchInput').placeholder = msg('searchPlaceholder');
   document.getElementById('emptyText').textContent = msg('emptyState');
 
-  // Ask service worker to save & close tabs (runs even if popup closes)
-  chrome.runtime.sendMessage({ action: 'saveAndCloseTabs' });
-
-  // Small delay to let service worker write to storage before we read
-  await new Promise((r) => setTimeout(r, 100));
-
+  // Load and display groups (saving is handled by the service worker)
   await loadGroups();
   renderGroups();
 

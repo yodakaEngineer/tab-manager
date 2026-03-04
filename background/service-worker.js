@@ -17,14 +17,9 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-// Handle messages from popup
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'saveAndCloseTabs') {
-    saveAndCloseTabs()
-      .then((result) => sendResponse(result))
-      .catch((err) => sendResponse({ saved: false, error: err.message }));
-    return true; // keep channel open for async
-  }
+// No default_popup → onClicked fires when the icon is clicked
+chrome.action.onClicked.addListener(async (tab) => {
+  await saveAndCloseTabs();
 });
 
 async function saveAndCloseTabs() {
@@ -38,7 +33,9 @@ async function saveAndCloseTabs() {
   );
 
   if (saveable.length === 0) {
-    return { saved: false, count: 0 };
+    // Nothing to save — just open the management page
+    await openManagementPage();
+    return;
   }
 
   // Build the group
@@ -53,10 +50,10 @@ async function saveAndCloseTabs() {
     name: formatDate(now),
     color: COLORS[colorIndex],
     isProtected: false,
-    tabs: saveable.map((tab) => ({
-      url: tab.url,
-      title: tab.title || tab.url,
-      favIconUrl: tab.favIconUrl || '',
+    tabs: saveable.map((t) => ({
+      url: t.url,
+      title: t.title || t.url,
+      favIconUrl: t.favIconUrl || '',
     })),
     createdAt: now.getTime(),
     tabCount: saveable.length,
@@ -64,15 +61,28 @@ async function saveAndCloseTabs() {
 
   tabGroups.unshift(group);
 
-  // Save to storage first, before touching any tabs
+  // Save to storage FIRST, before touching any tabs
   await chrome.storage.local.set({ tabGroups, lastSavedCount: saveable.length });
 
-  // Now close tabs and open a new one
-  await chrome.tabs.create({ active: true });
+  // Open the management page as a new tab
+  await openManagementPage();
+
+  // Close the saved tabs
   const tabIds = saveable.map((t) => t.id);
   await chrome.tabs.remove(tabIds);
+}
 
-  return { saved: true, count: saveable.length };
+async function openManagementPage() {
+  const manageUrl = chrome.runtime.getURL('popup/popup.html');
+
+  // Reuse existing management tab if open
+  const existing = await chrome.tabs.query({ url: manageUrl });
+  if (existing.length > 0) {
+    await chrome.tabs.update(existing[0].id, { active: true });
+    await chrome.tabs.reload(existing[0].id);
+  } else {
+    await chrome.tabs.create({ url: manageUrl, active: true });
+  }
 }
 
 function formatDate(date) {
