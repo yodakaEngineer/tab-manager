@@ -47,7 +47,7 @@ async function saveAndCloseTabs() {
 
   const group = {
     id: crypto.randomUUID(),
-    name: formatDate(now),
+    name: generateGroupName(),
     color: COLORS[colorIndex],
     isProtected: false,
     tabs: saveable.map((t) => ({
@@ -73,7 +73,7 @@ async function saveAndCloseTabs() {
 }
 
 async function openManagementPage() {
-  const manageUrl = chrome.runtime.getURL('popup/popup.html');
+  const manageUrl = chrome.runtime.getURL('popup/tab-manager.html');
 
   // Reuse existing management tab if open
   const existing = await chrome.tabs.query({ url: manageUrl });
@@ -85,11 +85,24 @@ async function openManagementPage() {
   }
 }
 
-function formatDate(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  const h = String(date.getHours()).padStart(2, '0');
-  const min = String(date.getMinutes()).padStart(2, '0');
-  return `${y}/${m}/${d} ${h}:${min}`;
+const ADJECTIVES = [
+  'Silent', 'Cosmic', 'Neon', 'Velvet', 'Crystal',
+  'Phantom', 'Solar', 'Lunar', 'Amber', 'Crimson',
+  'Azure', 'Shadow', 'Frozen', 'Electric', 'Mystic',
+  'Golden', 'Iron', 'Swift', 'Noble', 'Brave',
+  'Vivid', 'Primal', 'Arcane', 'Radiant', 'Hollow',
+];
+
+const NOUNS = [
+  'Aurora', 'Ember', 'Horizon', 'Phoenix', 'Cascade',
+  'Prism', 'Vertex', 'Eclipse', 'Cipher', 'Pulse',
+  'Nexus', 'Storm', 'Forge', 'Spark', 'Orbit',
+  'Haven', 'Zenith', 'Drift', 'Blaze', 'Crest',
+  'Vortex', 'Spectra', 'Mirage', 'Torrent', 'Pinnacle',
+];
+
+function generateGroupName() {
+  const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+  const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+  return `${adj} ${noun}`;
 }

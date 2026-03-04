@@ -207,11 +207,9 @@ function createGroupCard(group, searchQuery) {
     expandIcon.classList.toggle('expanded');
   });
 
-  // Auto-expand if searching
-  if (searchQuery) {
-    tabList.classList.add('visible');
-    expandIcon.classList.add('expanded');
-  }
+  // Always expand by default
+  tabList.classList.add('visible');
+  expandIcon.classList.add('expanded');
 
   card.append(header, actions, colorPicker, tabList);
   return card;
