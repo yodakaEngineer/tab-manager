@@ -17,11 +17,17 @@ const SYSTEM_URL_PREFIXES = [
   'brave://',
 ];
 
+const msg = chrome.i18n.getMessage;
+
 let tabGroups = [];
 
 // --- Init ---
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Apply i18n to static elements
+  document.getElementById('searchInput').placeholder = msg('searchPlaceholder');
+  document.getElementById('emptyText').textContent = msg('emptyState');
+
   await loadGroups();
   await autoSaveTabs();
   renderGroups();
@@ -82,7 +88,7 @@ async function autoSaveTabs() {
     await chrome.tabs.remove(tabIdsToClose);
   }
 
-  showToast(`${saveable.length}個のタブを保存しました`);
+  showToast(msg('tabsSaved', [String(saveable.length)]));
 }
 
 // --- Rendering ---
@@ -147,7 +153,7 @@ function createGroupCard(group, searchQuery) {
     const badge = document.createElement('span');
     badge.className = 'protected-badge';
     badge.textContent = '\u{1F512}';
-    badge.title = '保護中';
+    badge.title = msg('protected');
     meta.appendChild(badge);
   }
   const countBadge = document.createElement('span');
@@ -166,7 +172,7 @@ function createGroupCard(group, searchQuery) {
   actions.className = 'group-actions';
 
   actions.appendChild(
-    createActionBtn('restore', '\u25B6 復元', () => restoreGroup(group.id))
+    createActionBtn('restore', `\u25B6 ${msg('restore')}`, () => restoreGroup(group.id))
   );
   actions.appendChild(
     createActionBtn('color', '\u{1F3A8}', () => toggleColorPicker(card))
@@ -241,12 +247,8 @@ function createGroupCard(group, searchQuery) {
 
   // Toggle expand
   header.addEventListener('click', () => {
-    const isExpanded = tabList.classList.contains('visible');
     tabList.classList.toggle('visible');
     expandIcon.classList.toggle('expanded');
-    if (searchQuery && !isExpanded) {
-      // auto expand when searching
-    }
   });
 
   // Auto-expand if searching
@@ -295,7 +297,7 @@ async function restoreGroup(id) {
     }
   }
 
-  showToast(`${group.tabs.length}個のタブを復元しました`);
+  showToast(msg('tabsRestored', [String(group.tabs.length)]));
 }
 
 async function toggleProtect(id) {
@@ -368,27 +370,27 @@ function showDeleteConfirm(id, name) {
   const dialog = document.createElement('div');
   dialog.className = 'confirm-dialog';
 
-  const msg = document.createElement('p');
-  msg.textContent = `「${name}」を削除しますか？`;
+  const msgEl = document.createElement('p');
+  msgEl.textContent = msg('deleteConfirm', [name]);
 
   const buttons = document.createElement('div');
   buttons.className = 'confirm-buttons';
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'キャンセル';
+  cancelBtn.textContent = msg('cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'btn-confirm-delete';
-  deleteBtn.textContent = '削除';
+  deleteBtn.textContent = msg('delete');
   deleteBtn.addEventListener('click', async () => {
     overlay.remove();
     await deleteGroup(id);
   });
 
   buttons.append(cancelBtn, deleteBtn);
-  dialog.append(msg, buttons);
+  dialog.append(msgEl, buttons);
   overlay.appendChild(dialog);
   document.body.appendChild(overlay);
 

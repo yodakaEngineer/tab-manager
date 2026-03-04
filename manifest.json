@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Tab Group Manager",
-  "description": "ワンクリックで全タブを保存・管理。タブグループの保存、復元、保護、検索が可能。",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
   "version": "1.0.0",
+  "default_locale": "en",
   "permissions": ["tabs", "storage"],
   "action": {
     "default_popup": "popup/popup.html",

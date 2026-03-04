@@ -1,0 +1,44 @@
+{
+  "extName": {
+    "message": "Tab Group Manager"
+  },
+  "extDescription": {
+    "message": "Save, manage, and restore tab groups with one click. Supports naming, protection, color coding, and search."
+  },
+  "searchPlaceholder": {
+    "message": "Search tabs..."
+  },
+  "emptyState": {
+    "message": "No saved tab groups"
+  },
+  "tabsSaved": {
+    "message": "$COUNT$ tabs saved",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "tabsRestored": {
+    "message": "$COUNT$ tabs restored",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "restore": {
+    "message": "Restore"
+  },
+  "protected": {
+    "message": "Protected"
+  },
+  "deleteConfirm": {
+    "message": "Delete \"$NAME$\"?",
+    "placeholders": {
+      "name": { "content": "$1" }
+    }
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "delete": {
+    "message": "Delete"
+  }
+}
