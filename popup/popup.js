@@ -30,7 +30,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadGroups();
   await autoSaveTabs();
+  // Re-read groups after save (autoSaveTabs may have updated storage)
+  await loadGroups();
   renderGroups();
+
+  // Show toast if tabs were just saved (from this or previous popup open)
+  const { lastSavedCount } = await chrome.storage.local.get('lastSavedCount');
+  if (lastSavedCount) {
+    showToast(msg('tabsSaved', [String(lastSavedCount)]));
+    await chrome.storage.local.remove('lastSavedCount');
+  }
 
   document.getElementById('searchInput').addEventListener('input', (e) => {
     renderGroups(e.target.value.trim().toLowerCase());
@@ -79,16 +88,12 @@ async function autoSaveTabs() {
   tabGroups.unshift(group);
   await saveGroups();
 
-  // Close saved tabs and open a new blank tab
-  const newTab = await chrome.tabs.create({ active: true });
-  const tabIdsToClose = saveable
-    .map((t) => t.id)
-    .filter((id) => id !== newTab.id);
-  if (tabIdsToClose.length > 0) {
-    await chrome.tabs.remove(tabIdsToClose);
-  }
+  // Store a flag so next popup open can show the toast
+  await chrome.storage.local.set({ lastSavedCount: saveable.length });
 
-  showToast(msg('tabsSaved', [String(saveable.length)]));
+  // Delegate tab close to service worker so popup closing doesn't abort it
+  const tabIds = saveable.map((t) => t.id);
+  chrome.runtime.sendMessage({ action: 'closeTabs', tabIds });
 }
 
 // --- Rendering ---
