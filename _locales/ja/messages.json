@@ -1,0 +1,44 @@
+{
+  "extName": {
+    "message": "Tab Group Manager"
+  },
+  "extDescription": {
+    "message": "ワンクリックで全タブを保存・管理。タブグループの保存、復元、保護、検索が可能。"
+  },
+  "searchPlaceholder": {
+    "message": "タブを検索..."
+  },
+  "emptyState": {
+    "message": "保存済みのタブグループはありません"
+  },
+  "tabsSaved": {
+    "message": "$COUNT$個のタブを保存しました",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "tabsRestored": {
+    "message": "$COUNT$個のタブを復元しました",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "restore": {
+    "message": "復元"
+  },
+  "protected": {
+    "message": "保護中"
+  },
+  "deleteConfirm": {
+    "message": "「$NAME$」を削除しますか？",
+    "placeholders": {
+      "name": { "content": "$1" }
+    }
+  },
+  "cancel": {
+    "message": "キャンセル"
+  },
+  "delete": {
+    "message": "削除"
+  }
+}

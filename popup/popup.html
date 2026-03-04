@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Tab Group Manager</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Tab Group Manager</h1>
+      <div class="search-box">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" autocomplete="off">
+      </div>
+    </header>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+        <rect x="2" y="3" width="20" height="18" rx="2"/>
+        <line x1="2" y1="8" x2="22" y2="8"/>
+        <line x1="8" y1="3" x2="8" y2="8"/>
+      </svg>
+      <p id="emptyText"></p>
+    </div>
+
+    <div id="groupList" class="group-list"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

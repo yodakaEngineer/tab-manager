@@ -1,0 +1,8 @@
+{
+  "name": "tab-group-manager",
+  "version": "1.0.0",
+  "description": "Chrome extension to save, manage, and restore tab groups with one click. Supports naming, protection, color coding, and search.",
+  "author": "yodaka",
+  "license": "MIT",
+  "private": true
+}
