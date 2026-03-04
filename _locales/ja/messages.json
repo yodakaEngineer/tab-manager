@@ -40,5 +40,8 @@
   },
   "delete": {
     "message": "削除"
+  },
+  "tabOpened": {
+    "message": "タブを開きました"
   }
 }

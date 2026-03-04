@@ -40,5 +40,8 @@
   },
   "delete": {
     "message": "Delete"
+  },
+  "tabOpened": {
+    "message": "Tab opened"
   }
 }
