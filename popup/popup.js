@@ -9,14 +9,6 @@ const COLORS = [
   { name: 'orange', hex: '#F5A623' },
 ];
 
-const SYSTEM_URL_PREFIXES = [
-  'chrome://',
-  'chrome-extension://',
-  'about:',
-  'edge://',
-  'brave://',
-];
-
 const msg = chrome.i18n.getMessage;
 
 let tabGroups = [];
@@ -28,13 +20,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('searchInput').placeholder = msg('searchPlaceholder');
   document.getElementById('emptyText').textContent = msg('emptyState');
 
-  await loadGroups();
-  await autoSaveTabs();
-  // Re-read groups after save (autoSaveTabs may have updated storage)
+  // Ask service worker to save & close tabs (runs even if popup closes)
+  chrome.runtime.sendMessage({ action: 'saveAndCloseTabs' });
+
+  // Small delay to let service worker write to storage before we read
+  await new Promise((r) => setTimeout(r, 100));
+
   await loadGroups();
   renderGroups();
 
-  // Show toast if tabs were just saved (from this or previous popup open)
+  // Show toast if tabs were just saved
   const { lastSavedCount } = await chrome.storage.local.get('lastSavedCount');
   if (lastSavedCount) {
     showToast(msg('tabsSaved', [String(lastSavedCount)]));
@@ -55,45 +50,6 @@ async function loadGroups() {
 
 async function saveGroups() {
   await chrome.storage.local.set({ tabGroups });
-}
-
-// --- Auto-save tabs on popup open ---
-
-async function autoSaveTabs() {
-  const tabs = await chrome.tabs.query({ currentWindow: true });
-  const saveable = tabs.filter((tab) =>
-    tab.url && !SYSTEM_URL_PREFIXES.some((prefix) => tab.url.startsWith(prefix))
-  );
-
-  if (saveable.length === 0) return;
-
-  const now = new Date();
-  const name = formatDate(now);
-  const colorIndex = tabGroups.length % COLORS.length;
-
-  const group = {
-    id: crypto.randomUUID(),
-    name,
-    color: COLORS[colorIndex].hex,
-    isProtected: false,
-    tabs: saveable.map((tab) => ({
-      url: tab.url,
-      title: tab.title || tab.url,
-      favIconUrl: tab.favIconUrl || '',
-    })),
-    createdAt: now.getTime(),
-    tabCount: saveable.length,
-  };
-
-  tabGroups.unshift(group);
-  await saveGroups();
-
-  // Store a flag so next popup open can show the toast
-  await chrome.storage.local.set({ lastSavedCount: saveable.length });
-
-  // Delegate tab close to service worker so popup closing doesn't abort it
-  const tabIds = saveable.map((t) => t.id);
-  chrome.runtime.sendMessage({ action: 'closeTabs', tabIds });
 }
 
 // --- Rendering ---
@@ -435,13 +391,4 @@ function showToast(message) {
       toast.style.animation = '';
     }, 300);
   }, 3000);
-}
-
-function formatDate(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  const h = String(date.getHours()).padStart(2, '0');
-  const min = String(date.getMinutes()).padStart(2, '0');
-  return `${y}/${m}/${d} ${h}:${min}`;
 }
