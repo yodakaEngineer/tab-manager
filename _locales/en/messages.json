@@ -43,5 +43,8 @@
   },
   "tabOpened": {
     "message": "Tab opened"
+  },
+  "deleteLockedWarning": {
+    "message": "Please unlock the group first"
   }
 }

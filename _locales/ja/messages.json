@@ -43,5 +43,8 @@
   },
   "tabOpened": {
     "message": "タブを開きました"
+  },
+  "deleteLockedWarning": {
+    "message": "ロックを解除してください"
   }
 }

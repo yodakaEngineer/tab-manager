@@ -102,6 +102,10 @@ function createGroupCard(group, searchQuery) {
   const nameEl = document.createElement('span');
   nameEl.className = 'group-name';
   nameEl.textContent = group.name;
+  nameEl.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    startRename(card, group.id);
+  });
 
   const meta = document.createElement('span');
   meta.className = 'group-meta';
@@ -321,6 +325,12 @@ function startRename(card, id) {
 }
 
 function showDeleteConfirm(id, name) {
+  const group = tabGroups.find((g) => g.id === id);
+  if (group && group.isProtected) {
+    alert(msg('deleteLockedWarning'));
+    return;
+  }
+
   const existing = document.querySelector('.confirm-overlay');
   if (existing) existing.remove();
 
