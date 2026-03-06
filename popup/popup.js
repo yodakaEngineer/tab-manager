@@ -324,6 +324,8 @@ function startRename(card, id) {
   });
 }
 
+let pendingDelete = null;
+
 function showDeleteConfirm(id, name) {
   const group = tabGroups.find((g) => g.id === id);
   if (group && group.isProtected) {
@@ -331,57 +333,90 @@ function showDeleteConfirm(id, name) {
     return;
   }
 
-  const existing = document.querySelector('.confirm-overlay');
-  if (existing) existing.remove();
+  // Finalize any previous pending delete
+  finalizePendingDelete();
 
-  const overlay = document.createElement('div');
-  overlay.className = 'confirm-overlay visible';
+  const index = tabGroups.findIndex((g) => g.id === id);
+  const deletedGroup = tabGroups[index];
 
-  const dialog = document.createElement('div');
-  dialog.className = 'confirm-dialog';
+  // Remove from array (but don't save yet)
+  tabGroups.splice(index, 1);
 
-  const msgEl = document.createElement('p');
-  msgEl.textContent = msg('deleteConfirm', [name]);
-
-  const buttons = document.createElement('div');
-  buttons.className = 'confirm-buttons';
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = msg('cancel');
-  cancelBtn.addEventListener('click', () => overlay.remove());
-
-  const deleteBtn = document.createElement('button');
-  deleteBtn.className = 'btn-confirm-delete';
-  deleteBtn.textContent = msg('delete');
-  deleteBtn.addEventListener('click', async () => {
-    overlay.remove();
-    await deleteGroup(id);
-  });
-
-  buttons.append(cancelBtn, deleteBtn);
-  dialog.append(msgEl, buttons);
-  overlay.appendChild(dialog);
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
-}
-
-async function deleteGroup(id) {
+  // Animate card removal then re-render
   const card = document.querySelector(`[data-id="${id}"]`);
   if (card) {
     card.classList.add('removing');
-    await new Promise((resolve) =>
-      card.addEventListener('animationend', resolve)
-    );
+    card.addEventListener('animationend', () => {
+      renderGroups(document.getElementById('searchInput').value.trim().toLowerCase());
+    });
+  } else {
+    renderGroups(document.getElementById('searchInput').value.trim().toLowerCase());
   }
 
-  tabGroups = tabGroups.filter((g) => g.id !== id);
-  await saveGroups();
-  renderGroups(document.getElementById('searchInput').value.trim().toLowerCase());
+  showUndoToast(name, deletedGroup, index);
 }
+
+function showUndoToast(name, deletedGroup, originalIndex) {
+  // Remove existing undo toast if any
+  const existing = document.querySelector('.undo-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'undo-toast';
+
+  const text = document.createElement('span');
+  text.className = 'undo-toast-text';
+  text.textContent = msg('groupDeleted', [name]);
+
+  const undoBtn = document.createElement('button');
+  undoBtn.className = 'undo-toast-btn';
+  undoBtn.textContent = msg('undoRestore');
+
+  toast.append(text, undoBtn);
+  document.getElementById('toast').insertAdjacentElement('afterend', toast);
+
+  toast.style.animation = 'slideIn 0.3s ease';
+
+  const timerId = setTimeout(() => {
+    toast.style.animation = 'fadeOut 0.3s ease forwards';
+    setTimeout(() => {
+      toast.remove();
+      if (pendingDelete && pendingDelete.timerId === timerId) {
+        saveGroups();
+        pendingDelete = null;
+      }
+    }, 300);
+  }, 5000);
+
+  pendingDelete = { deletedGroup, originalIndex, timerId };
+
+  undoBtn.addEventListener('click', () => {
+    clearTimeout(timerId);
+    toast.remove();
+    // Restore group at original position
+    tabGroups.splice(originalIndex, 0, deletedGroup);
+    saveGroups();
+    renderGroups(document.getElementById('searchInput').value.trim().toLowerCase());
+    pendingDelete = null;
+  });
+}
+
+function finalizePendingDelete() {
+  if (!pendingDelete) return;
+  clearTimeout(pendingDelete.timerId);
+  const existing = document.querySelector('.undo-toast');
+  if (existing) existing.remove();
+  saveGroups();
+  pendingDelete = null;
+}
+
+// Finalize pending delete when popup closes
+window.addEventListener('beforeunload', () => {
+  if (pendingDelete) {
+    // Use sync storage write via sendMessage or just save
+    finalizePendingDelete();
+  }
+});
 
 // --- Helpers ---
 
