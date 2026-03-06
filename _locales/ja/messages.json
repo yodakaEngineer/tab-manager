@@ -29,17 +29,14 @@
   "protected": {
     "message": "保護中"
   },
-  "deleteConfirm": {
-    "message": "「$NAME$」を削除しますか？",
+  "groupDeleted": {
+    "message": "「$NAME$」を削除しました",
     "placeholders": {
       "name": { "content": "$1" }
     }
   },
-  "cancel": {
-    "message": "キャンセル"
-  },
-  "delete": {
-    "message": "削除"
+  "undoRestore": {
+    "message": "復元する"
   },
   "tabOpened": {
     "message": "タブを開きました"

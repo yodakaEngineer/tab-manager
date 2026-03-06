@@ -29,17 +29,14 @@
   "protected": {
     "message": "Protected"
   },
-  "deleteConfirm": {
-    "message": "Delete \"$NAME$\"?",
+  "groupDeleted": {
+    "message": "\"$NAME$\" deleted",
     "placeholders": {
       "name": { "content": "$1" }
     }
   },
-  "cancel": {
-    "message": "Cancel"
-  },
-  "delete": {
-    "message": "Delete"
+  "undoRestore": {
+    "message": "Undo"
   },
   "tabOpened": {
     "message": "Tab opened"
